@@ -143,7 +143,7 @@ async def process_child_mission(browser, mission):
                     await detail_page.close()
 
             if count % 8 == 0:
-                delay(30000,50000)
+                await delay(30000,50000)
 
             job_listings.append(job)
 
@@ -177,7 +177,7 @@ async def main():
             mission_result = await process_child_mission(browser, mission)
             await append_to_file(file_name, mission_result)  # Append data after each mission.
             print(f"Appended results of mission to {file_name}")
-            delay(20000, 30000)
+            await delay(20000, 30000)
 
         print(f"Completed processing all missions. Data saved to {file_name}")
     except Exception as error:
