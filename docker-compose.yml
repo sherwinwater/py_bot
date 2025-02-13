@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  nodriver:
+    build:
+      platforms:
+        - linux/amd64
+      context: .
+      dockerfile: Dockerfile 
+    volumes:
+      - .:/app
+    working_dir: /app

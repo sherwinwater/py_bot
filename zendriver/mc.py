@@ -1,6 +1,6 @@
 import json
 import asyncio
-import nodriver as uc
+import zendriver as zd
 import os
 from datetime import datetime
 import random
@@ -93,7 +93,7 @@ async def process_child_mission(browser, mission):
         has_no_more_results_button = False
 
         for i in range(max_scrolls):
-            no_more_button = await page.query_selector(no_more_results_selector)
+            no_more_button = await page.select(no_more_results_selector)
             if no_more_button:
                 print("Reached the end of the listings (No More Results button found).")
                 has_no_more_results_button = True
@@ -125,14 +125,15 @@ async def process_child_mission(browser, mission):
                 "location": location_elem.text if location_elem else '',
                 "postedTime": posted_time_elem.text if posted_time_elem else '',
                 "jobUrl": job_url or '',
+                "scrapedAt": datetime.utcnow().isoformat(),
                 "source": mission["initial_link_location"]
             }
 
             if job["jobUrl"]:
                 detail_page = await browser.get(job["jobUrl"], new_tab=True)
                 try:
-                    await delay(8000, 10000)
-                    job["detailContent"] = await detail_page.get_content()
+                    await delay(3000, 4000)
+                    # job["detailContent"] = await detail_page.get_content()
                     job["detailContent"] = "done"
                 except Exception as err:
                     print(f"Error fetching details for {job['jobUrl']}: {err}")
@@ -151,12 +152,12 @@ async def process_child_mission(browser, mission):
 
 async def main():
     # Configure mission limit; default to 5 if not set in environment variables.
-    mission_limit = int(os.getenv('CHILD_MISSION_LIMIT', 10))
+    mission_limit = int(os.getenv('CHILD_MISSION_LIMIT', 5))
 
     # Start the browser session
-    browser = await uc.start(
+    browser = await zd.start(
         headless=False,
-        no_sandbox=True,
+        no_sandbox=False,
         browser_args=["--window-size=920,980"]
     )
 
@@ -172,7 +173,6 @@ async def main():
             mission_result = await process_child_mission(browser, mission)
             await append_to_file(file_name, mission_result)  # Append data after each mission.
             print(f"Appended results of mission to {file_name}")
-            delay(20000, 30000)
 
         print(f"Completed processing all missions. Data saved to {file_name}")
     except Exception as error:
