@@ -112,7 +112,9 @@ async def process_child_mission(browser, mission):
         print(f"Found {len(job_cards)} job listings.")
 
         job_listings = []
+        count =0
         for card in job_cards:
+            count +=1
             title_elem = await card.query_selector('[data-testid="jobTitle"]')
             company_elem = await card.query_selector('[data-testid="company"]')
             location_elem = await card.query_selector('[data-testid="jobDetailLocation"]')
@@ -140,6 +142,9 @@ async def process_child_mission(browser, mission):
                 finally:
                     await detail_page.close()
 
+            if count % 8 == 0:
+                delay(30000,50000)
+
             job_listings.append(job)
 
         print(f"Mission {mission['startUrl']}: Collected {len(job_listings)} job listings with details.")
@@ -151,7 +156,7 @@ async def process_child_mission(browser, mission):
 
 async def main():
     # Configure mission limit; default to 5 if not set in environment variables.
-    mission_limit = int(os.getenv('CHILD_MISSION_LIMIT', 10))
+    mission_limit = int(os.getenv('CHILD_MISSION_LIMIT', 40))
 
     # Start the browser session
     browser = await uc.start(
